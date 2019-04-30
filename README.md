@@ -29,12 +29,14 @@ public class Note {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
+    //TODO Set atrb
     private String title;
 
+    //TODO Set Ctor
     public Note(String title) {
         this.title = title;
     }
-
+    
     public void setId(int id) {
         this.id = id;
     }
@@ -43,6 +45,7 @@ public class Note {
         return id;
     }
 
+    //TODO Set Setters && Getters
     public String getTitle() {
         return title;
     }
@@ -221,32 +224,39 @@ By extending AndroidViewModel, we get a handle to the application context, which
 GIST:
 ```java
 public class NoteViewModel extends AndroidViewModel {
+    //TODO Change
     private NoteRepository repository;
     private LiveData<List<Note>> allNotes;
 
+    //TODO Change
     public NoteViewModel(@NonNull Application application) {
         super(application);
         repository = new NoteRepository(application);
         allNotes = repository.getAllNotes();
     }
 
+    //TODO Change
     public void insert(Note note) {
         repository.insert(note);
     }
 
+    //TODO Change
     public void update(Note note) {
         repository.update(note);
     }
-
+    
+    //TODO Change
     public void delete(Note note) {
         repository.delete(note);
     }
-
+    
+    //TODO Change
     public void deleteAllNotes() {
         repository.deleteAllNotes();
     }
 
     public LiveData<List<Note>> getAllNotes() {
+        //TODO Change
         return allNotes;
     }
 }
@@ -258,6 +268,7 @@ GIST:
 ```java
 public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
     //TODO change (REFRACTOR) ARRAY with array name that hold data
+    //TODO Change List TYpe
     private List<Note> ARRAY = new ArrayList<>();
     private OnItemClickListener listener;
 
@@ -312,6 +323,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
     }
 
     public interface OnItemClickListener {
+        //TODO Change
         void onItemClick(Note note);
     }
 
@@ -325,25 +337,50 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
 
 GIST:
 ```java
-EditText editTextTitle = findViewById(R.id.edit_text_title);
-private void saveNote() {
-        String title = editTextTitle.getText().toString();
+//init RecyclerView
+//TODO change recyclerView
+RecyclerView recyclerView = findViewById(R.id.recyclerView);
+recyclerView.setLayoutManager(new LinearLayoutManager(this));
+recyclerView.setHasFixedSize(true);
 
-        //check if empty
-        if (title.trim().isEmpty()) {
-            Toast.makeText(this, "Please insert a title and description", Toast.LENGTH_SHORT).show();
-            return;
+//TODO change NoteAdapter
+final NoteAdapter adapter = new NoteAdapter();
+recyclerView.setAdapter(adapter);
+
+//Listen onChanges
+noteViewModel = ViewModelProviders.of(this).get(NoteViewModel.class);
+noteViewModel.getAllProducts().observe(this, new Observer<List<Note>>() {
+    @Override
+    public void onChanged(@Nullable List<Note> notes) {
+        //TODO change
+        adapter.setNotes(notes);
         }
+    });
 
-        Intent data = new Intent();
-        data.putExtra(EXTRA_TITLE, title);
-
-        int id = getIntent().getIntExtra(EXTRA_ID, -1);
-        if (id != -1) {
-            data.putExtra(EXTRA_ID, id);
+btn.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View view) {
+        //TODO Change <arg1> <arg2> appropriate Ctor
+        Note note = new Note(<arg1>, <arg2>);
+        /TODO Change noteViewModel
+        noteViewModel.insert(note);
         }
+});
+```
 
-        setResult(RESULT_OK, data);
-        finish();
-    }
+### Update Data
+
+```java
+//TODO Changes
+Note note = new Note(<arg1>, <arg2>);
+note.setId(id);
+noteViewModel.update(note);
+```
+
+### Delete Data
+
+```java
+//TODO Change noteViewModel getNoteAt
+//Should be used in Holder or swpie methods
+noteViewModel.delete(adapter.getNoteAt(viewHolder.getAdapterPosition()));
 ```
