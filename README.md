@@ -217,3 +217,132 @@ It stores and processes data for the activity/fragment and it doesn't get destoy
 so it doesn't lose it's variable state for example when the device is rotated.
 
 By extending AndroidViewModel, we get a handle to the application context, which we then use to instantiate our RoomDatabase.
+
+GIST:
+```java
+public class NoteViewModel extends AndroidViewModel {
+    private NoteRepository repository;
+    private LiveData<List<Note>> allNotes;
+
+    public NoteViewModel(@NonNull Application application) {
+        super(application);
+        repository = new NoteRepository(application);
+        allNotes = repository.getAllNotes();
+    }
+
+    public void insert(Note note) {
+        repository.insert(note);
+    }
+
+    public void update(Note note) {
+        repository.update(note);
+    }
+
+    public void delete(Note note) {
+        repository.delete(note);
+    }
+
+    public void deleteAllNotes() {
+        repository.deleteAllNotes();
+    }
+
+    public LiveData<List<Note>> getAllNotes() {
+        return allNotes;
+    }
+}
+```
+
+## Adapter
+
+GIST:
+```java
+public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
+    //TODO change (REFRACTOR) ARRAY with array name that hold data
+    private List<Note> ARRAY = new ArrayList<>();
+    private OnItemClickListener listener;
+
+    @NonNull
+    @Override
+    public NoteHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        //TODO change ITEM_SCHEMA with custom item in layout folder
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.ITEM_SCHEMA, parent, false);
+        return new NoteHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull NoteHolder holder, int position) {
+        Note currentNote = ARRAY.get(position);
+        //Link UI With a var 2/2 {getTitle() defined at Note.java}
+        holder.textViewTitle.setText(currentNote.getTitle());
+    }
+
+    @Override
+    public int getItemCount() {
+        return ARRAY.size();
+    }
+
+    public void setNotes(List<Note> ARRAY) {
+        this.ARRAY = ARRAY;
+        notifyDataSetChanged();
+    }
+
+    public Note getNoteAt(int position) {
+        return ARRAY.get(position);
+    }
+
+    class NoteHolder extends RecyclerView.ViewHolder {
+        private TextView textViewTitle;
+
+        public NoteHolder(View itemView) {
+            super(itemView);
+            //Link UI With a var 1/2
+            textViewTitle = itemView.findViewById(R.id.text_view_title);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (listener != null && position != RecyclerView.NO_POSITION) {
+                        listener.onItemClick(ARRAY.get(position));
+                    }
+                }
+            });
+        }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(Note note);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+}
+```
+
+### ADD data
+
+```java
+EditText editTextTitle = findViewById(R.id.edit_text_title);
+private void saveNote() {
+        String title = editTextTitle.getText().toString();
+
+        //check if empty
+        if (title.trim().isEmpty()) {
+            Toast.makeText(this, "Please insert a title and description", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent data = new Intent();
+        data.putExtra(EXTRA_TITLE, title);
+
+        int id = getIntent().getIntExtra(EXTRA_ID, -1);
+        if (id != -1) {
+            data.putExtra(EXTRA_ID, id);
+        }
+
+        setResult(RESULT_OK, data);
+        finish();
+    }
+```
