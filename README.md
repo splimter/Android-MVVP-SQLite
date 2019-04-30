@@ -323,6 +323,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
 
 ### ADD data
 
+GIST:
 ```java
 EditText editTextTitle = findViewById(R.id.edit_text_title);
 private void saveNote() {
